@@ -198,6 +198,29 @@ void SysUartInit() {
 /*               Auxiliary functions & Main                     */
 /* ------------------------------------------------------------ */
 
+// Draw X
+void DrawX(PmodOLEDrgb* oled, int row, int col, u16 color) {
+   int x0 = col * 32 + 6;
+   int y0 = row * 21 + 4;
+   int x1 = col * 32 + 26;
+   int y1 = row * 21 + 17;
+
+   // Diagonals
+   OLEDrgb_DrawLine(oled, x0, y0, x1, y1, color);
+   OLEDrgb_DrawLine(oled, x0, y1, x1, y0, color);
+}
+
+// Draw O
+void DrawO(PmodOLEDrgb* oled, int row, int col, u16 color) {
+   int cx = col * 32 + 16;
+   int cy = row * 21 + 10;
+   int r = 8;
+
+   // If you have a circle draw function:
+   OLEDrgb_DrawCircle(oled, cx, cy, r, color);
+}
+
+
  // Update board
  void updateBoard() {
     // Display new board
@@ -210,9 +233,16 @@ int main() {
     KYPDInitialize();
     OledInitialize();
     BleInitialize();
+    OledRun();
+    u16 red = OLEDrgb_BuildRGB(255, 0, 0);
+    u16 blue = OLEDrgb_BuildRGB(0, 0, 255);
+
+    // Place X at (0,0), O at (0,1)
+    DrawX(oled, 0, 0, red);
+    DrawO(oled, 0, 1, blue);
 
     while(1) {
-         OledRun();
+         // OledRun();
         // Get move
         // Update board
         // Wait for other move

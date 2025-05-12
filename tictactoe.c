@@ -36,6 +36,7 @@ PmodKYPD myKypd;
 PmodOLEDrgb oledrgb;
 PmodBT2 myBT2;
 SysUart myUart;
+int board[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 u8 rgbUserFont[] = {
    0x00, 0x04, 0x02, 0x1F, 0x02, 0x04, 0x00, 0x00, // 0x00
@@ -135,7 +136,7 @@ void OledInitialize() {
 /* ------------------------------------------------------------ */
  void Cleanup() {
     DisableCaches();
-    OLED_End(&myOled);
+    OLED_End(&OLEDrgb_DrawCircle);
  }
 
 // Initialize the system UART device
@@ -247,6 +248,64 @@ void DrawO(PmodOLEDrgb* oled, int row, int col, u16 color) {
    OLEDrgb_DrawCircle(oled, cx, cy, r, color);
 }
 
+int checkWin(int board[9], int player) {
+   // All 8 possible winning combinations (by index)
+   int wins[8][3] = {
+       {0, 1, 2},  // Row 1
+       {3, 4, 5},  // Row 2
+       {6, 7, 8},  // Row 3
+       {0, 3, 6},  // Col 1
+       {1, 4, 7},  // Col 2
+       {2, 5, 8},  // Col 3
+       {0, 4, 8},  // Diagonal TL–BR
+       {2, 4, 6}   // Diagonal TR–BL
+   };
+
+   for (int i = 0; i < 8; i++) {
+       if (board[wins[i][0]] == player &&
+           board[wins[i][1]] == player &&
+           board[wins[i][2]] == player) {
+           return player;
+       }
+   }
+
+   for (int i = 0; i < 9; i++) {
+      if (board[i] == 0)
+         return 0;
+   }
+
+   return -1;
+}
+
+void gameOver(PmodOLEDrgb* oled, int tile) {
+   OLEDrgb_Clear(oled);
+
+   char* winnerLine;
+   if (tile == X_TILE)
+      winnerLine = "Player X won!";
+   else if (tile == O_TILE)
+      winnerLine = "Player O won!";
+   else
+      winnerLine = "It's a draw!"
+
+   // Compute centered column
+   int col1 = (16 - 10) / 2;
+   int col2 = (16 - 12) / 2;
+   int col3 = (16 - 26) / 2;
+
+   // Choose vertical rows
+   OLEDrgb_SetCursor(oled, col1, 2);
+   OLEDrgb_PutString(oled, "Game Over!");
+   OLEDrgb_SetCursor(oled, col2, 3);
+   OLEDrgb_PutString(oled, winnerLine);
+   OLEDrgb_SetCursor(oled, col3, 5);
+   OLEDrgb_PutString(oled, "Press any key to continue.");
+
+   // Get key
+   KYPDGetKey();
+   BoardInit();
+}
+
  // Update board
  void updateBoard(int tile, int row, int col) {
    u16 red = OLEDrgb_BuildRGB(255, 0, 0);
@@ -263,6 +322,9 @@ void DrawO(PmodOLEDrgb* oled, int row, int col, u16 color) {
          break;
     }
     // Check for win condition
+    int winner = checkWin(board, tile);
+    if (winner >= 0)
+      gameOver(&oledrgb, winner);
  }
 
 int main() { 
@@ -272,10 +334,6 @@ int main() {
     OledInitialize();
     BleInitialize();
     BoardInit();
-
-    // Place X at (0,0), O at (0,1)
-    DrawX(&oledrgb, 0, 0, red);
-    DrawO(&oledrgb, 0, 1, blue);
 
     while(1) {
          // OledRun();

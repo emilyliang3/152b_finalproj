@@ -30,6 +30,8 @@ typedef XUartPs SysUart;
 /*               Global Variables and Defines                   */
 /* ------------------------------------------------------------ */
 #define DEFAULT_KEYTABLE "0FED789C456B123A"
+#define X_TILE 1
+#define O_TILE 2
 PmodKYPD myKypd;
 PmodOLEDrgb oledrgb;
 PmodBT2 myBT2;
@@ -127,29 +129,6 @@ void OledInitialize() {
    OLEDrgb_begin(&oledrgb, XPAR_PMODOLEDRGB_0_AXI_LITE_GPIO_BASEADDR,
       XPAR_PMODOLEDRGB_0_AXI_LITE_SPI_BASEADDR);
 }
-
-void OledRun() {
-   // char ch;
-
-   // // Define the user definable characters
-   // for (ch = 0; ch < 5; ch++) {
-   //    OLEDrgb_DefUserChar(&oledrgb, ch, &rgbUserFont[ch * 8]);
-   // }
-
-   OLEDrgb_Clear(&oledrgb);
-  
-   // Set color (white)
-   u16 color = OLEDrgb_BuildRGB(255, 255, 255);
-
-   // Vertical lines (x = 32, x = 64)
-   OLEDrgb_DrawLine(&oledrgb, 32, 0, 32, 63, color);
-   OLEDrgb_DrawLine(&oledrgb, 64, 0, 64, 63, color);
-
-   // Horizontal lines (y = 21, y = 42)
-   OLEDrgb_DrawLine(&oledrgb, 0, 21, 95, 21, color);
-   OLEDrgb_DrawLine(&oledrgb, 0, 42, 95, 42, color);
-
-}
  
 /* ------------------------------------------------------------ */
 /*                     Set up / Clean up                        */
@@ -197,6 +176,28 @@ void SysUartInit() {
 /* ------------------------------------------------------------ */
 /*               Auxiliary functions & Main                     */
 /* ------------------------------------------------------------ */
+// Empty board
+void BoardInit() {
+   // char ch;
+
+   // // Define the user definable characters
+   // for (ch = 0; ch < 5; ch++) {
+   //    OLEDrgb_DefUserChar(&oledrgb, ch, &rgbUserFont[ch * 8]);
+   // }
+
+   OLEDrgb_Clear(&oledrgb);
+  
+   // Set color (white)
+   u16 color = OLEDrgb_BuildRGB(255, 255, 255);
+
+   // Vertical lines (x = 32, x = 64)
+   OLEDrgb_DrawLine(&oledrgb, 32, 0, 32, 63, color);
+   OLEDrgb_DrawLine(&oledrgb, 64, 0, 64, 63, color);
+
+   // Horizontal lines (y = 21, y = 42)
+   OLEDrgb_DrawLine(&oledrgb, 0, 21, 95, 21, color);
+   OLEDrgb_DrawLine(&oledrgb, 0, 42, 95, 42, color);
+}
 
 // Draw X
 void DrawX(PmodOLEDrgb* oled, int row, int col, u16 color) {
@@ -237,21 +238,30 @@ void OLEDrgb_DrawCircle(PmodOLEDrgb* oled, int cx, int cy, int r, u16 color) {
    }
 }
 
-
 // Draw O
 void DrawO(PmodOLEDrgb* oled, int row, int col, u16 color) {
    int cx = col * 32 + 16;
    int cy = row * 21 + 10;
    int r = 8;
 
-   // If you have a circle draw function:
    OLEDrgb_DrawCircle(oled, cx, cy, r, color);
 }
 
-
  // Update board
- void updateBoard() {
+ void updateBoard(int tile, int row, int col) {
+   u16 red = OLEDrgb_BuildRGB(255, 0, 0);
+   u16 blue = OLEDrgb_BuildRGB(0, 0, 255);
     // Display new board
+    switch (tile) {
+      case X_TILE:
+         DrawX(&oledrgb, row, col, red);
+         break;
+      case O_TILE:
+         DrawO(&oledrgb, row, col, blue);
+         break;
+      default:
+         break;
+    }
     // Check for win condition
  }
 
@@ -261,9 +271,7 @@ int main() {
     KYPDInitialize();
     OledInitialize();
     BleInitialize();
-    OledRun();
-    u16 red = OLEDrgb_BuildRGB(255, 0, 0);
-    u16 blue = OLEDrgb_BuildRGB(0, 0, 255);
+    BoardInit();
 
     // Place X at (0,0), O at (0,1)
     DrawX(&oledrgb, 0, 0, red);
@@ -272,6 +280,40 @@ int main() {
     while(1) {
          // OledRun();
         // Get move
+        char key = KYPDGetKey();
+        int pos = key - '0';
+        int curTile = X_TILE;
+        switch (pos) {
+         case 1:
+            updateBoard(curTile, 0, 0);
+            break;
+         case 2:
+            updateBoard(curTile, 0, 1);
+            break;
+         case 3:
+            updateBoard(curTile, 0, 2);
+            break;
+         case 4:
+            updateBoard(curTile, 1, 0);
+            break;
+         case 5:
+            updateBoard(curTile, 1, 1);
+            break;
+         case 6:
+            updateBoard(curTile, 1, 2);
+            break;
+         case 7:
+            updateBoard(curTile, 2, 0);
+            break;
+         case 8:
+            updateBoard(curTile, 2, 1);
+            break;
+         case 9:
+            updateBoard(curTile, 2, 2);
+            break;
+         default:
+            break;
+        }
         // Update board
         // Wait for other move
         // Update board

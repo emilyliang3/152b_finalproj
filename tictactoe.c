@@ -136,7 +136,7 @@ void OledInitialize() {
 /* ------------------------------------------------------------ */
  void Cleanup() {
     DisableCaches();
-    OLED_End(&OLEDrgb_DrawCircle);
+    OLED_End(&oledrgb);
  }
 
 // Initialize the system UART device
@@ -271,10 +271,10 @@ int checkWin(int board[9], int player) {
 
    for (int i = 0; i < 9; i++) {
       if (board[i] == 0)
-         return 0;
+         return -1;
    }
 
-   return -1;
+   return 0;
 }
 
 void gameOver(PmodOLEDrgb* oled, int tile) {
@@ -282,11 +282,11 @@ void gameOver(PmodOLEDrgb* oled, int tile) {
 
    char* winnerLine;
    if (tile == X_TILE)
-      winnerLine = "Player X won!";
+      winnerLine = "Player X won!\n";
    else if (tile == O_TILE)
-      winnerLine = "Player O won!";
+      winnerLine = "Player O won!\n";
    else
-      winnerLine = "It's a draw!"
+      winnerLine = "It's a draw!\n";
 
    // Compute centered column
    int col1 = (16 - 10) / 2;
@@ -294,11 +294,11 @@ void gameOver(PmodOLEDrgb* oled, int tile) {
    int col3 = (16 - 26) / 2;
 
    // Choose vertical rows
-   OLEDrgb_SetCursor(oled, col1, 2);
-   OLEDrgb_PutString(oled, "Game Over!");
-   OLEDrgb_SetCursor(oled, col2, 3);
+   OLEDrgb_SetCursor(oled, 0, 0);
+   OLEDrgb_PutString(oled, "Game Over!\n");
+   // OLEDrgb_SetCursor(oled, col2, 3);
    OLEDrgb_PutString(oled, winnerLine);
-   OLEDrgb_SetCursor(oled, col3, 5);
+   // OLEDrgb_SetCursor(oled, col3, 5);
    OLEDrgb_PutString(oled, "Press any key to continue.");
 
    // Get key

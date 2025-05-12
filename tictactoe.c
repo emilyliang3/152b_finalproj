@@ -210,6 +210,34 @@ void DrawX(PmodOLEDrgb* oled, int row, int col, u16 color) {
    OLEDrgb_DrawLine(oled, x0, y1, x1, y0, color);
 }
 
+// Draw circle
+void OLEDrgb_DrawCircle(PmodOLEDrgb* oled, int cx, int cy, int r, u16 color) {
+   int x = 0;
+   int y = r;
+   int d = 1 - r;
+
+   while (x <= y) {
+       // 8-way symmetry
+       OLEDrgb_SetPixel(oled, cx + x, cy + y, color);
+       OLEDrgb_SetPixel(oled, cx - x, cy + y, color);
+       OLEDrgb_SetPixel(oled, cx + x, cy - y, color);
+       OLEDrgb_SetPixel(oled, cx - x, cy - y, color);
+       OLEDrgb_SetPixel(oled, cx + y, cy + x, color);
+       OLEDrgb_SetPixel(oled, cx - y, cy + x, color);
+       OLEDrgb_SetPixel(oled, cx + y, cy - x, color);
+       OLEDrgb_SetPixel(oled, cx - y, cy - x, color);
+
+       if (d < 0) {
+           d += 2 * x + 3;
+       } else {
+           d += 2 * (x - y) + 5;
+           y--;
+       }
+       x++;
+   }
+}
+
+
 // Draw O
 void DrawO(PmodOLEDrgb* oled, int row, int col, u16 color) {
    int cx = col * 32 + 16;

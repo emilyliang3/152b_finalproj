@@ -295,11 +295,11 @@ void gameOver(PmodOLEDrgb* oled, int tile) {
 
    char* winnerLine;
    if (tile == X_TILE)
-      winnerLine = "Player X won!\n";
+      winnerLine = "   X won!\n";
    else if (tile == O_TILE)
-      winnerLine = "Player O won!\n";
+      winnerLine = "   O won!\n";
    else
-      winnerLine = "It's a draw!\n";
+      winnerLine = "It's a tie!\n";
 
    // Compute centered column
    int col1 = (16 - 10) / 2;
@@ -308,11 +308,11 @@ void gameOver(PmodOLEDrgb* oled, int tile) {
 
    // Choose vertical rows
    OLEDrgb_SetCursor(oled, 0, 1);
-   OLEDrgb_PutString(oled, "  Game Over!\n");
+   OLEDrgb_PutString(oled, " Game Over!\n");
    OLEDrgb_SetCursor(oled, 0, 2);
    OLEDrgb_PutString(oled, winnerLine);
    OLEDrgb_SetCursor(oled, 0, 4);
-   OLEDrgb_PutString(oled, "Press any non-numeric key to continue.");
+   OLEDrgb_PutString(oled, "Press any   non-numeric key to        continue.");
 
    // Get key
    KYPDGetKey();

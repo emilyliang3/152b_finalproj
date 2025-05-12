@@ -179,7 +179,9 @@ void SysUartInit() {
 /* ------------------------------------------------------------ */
 void ResetGame() {
    BoardInit();
-   board = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+   for (int i = 0; i < 9; i++) {
+      board[i] = 0;
+   }
 }
 
 // Empty board

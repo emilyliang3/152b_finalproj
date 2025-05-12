@@ -307,12 +307,12 @@ void gameOver(PmodOLEDrgb* oled, int tile) {
    int col3 = (16 - 26) / 2;
 
    // Choose vertical rows
-   OLEDrgb_SetCursor(oled, 1, 0);
+   OLEDrgb_SetCursor(oled, 0, 1);
    OLEDrgb_PutString(oled, "  Game Over!\n");
-   OLEDrgb_SetCursor(oled, 2, 0);
+   OLEDrgb_SetCursor(oled, 0, 2);
    OLEDrgb_PutString(oled, winnerLine);
-   OLEDrgb_SetCursor(oled, 4, 0);
-   OLEDrgb_PutString(oled, "Press any key to continue.");
+   OLEDrgb_SetCursor(oled, 0, 4);
+   OLEDrgb_PutString(oled, "Press any non-numeric key to continue.");
 
    // Get key
    KYPDGetKey();

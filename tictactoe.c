@@ -210,6 +210,8 @@ void DrawX(PmodOLEDrgb* oled, int row, int col, u16 color) {
    // Diagonals
    OLEDrgb_DrawLine(oled, x0, y0, x1, y1, color);
    OLEDrgb_DrawLine(oled, x0, y1, x1, y0, color);
+
+   board[row*3 + col] = X_TILE;
 }
 
 // Draw circle
@@ -246,6 +248,8 @@ void DrawO(PmodOLEDrgb* oled, int row, int col, u16 color) {
    int r = 8;
 
    OLEDrgb_DrawCircle(oled, cx, cy, r, color);
+
+   board[row*3 + col] = O_TILE;
 }
 
 int checkWin(int board[9], int player) {

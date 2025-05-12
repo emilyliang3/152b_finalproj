@@ -218,14 +218,14 @@ void OLEDrgb_DrawCircle(PmodOLEDrgb* oled, int cx, int cy, int r, u16 color) {
 
    while (x <= y) {
        // 8-way symmetry
-       OLEDrgb_SetPixel(oled, cx + x, cy + y, color);
-       OLEDrgb_SetPixel(oled, cx - x, cy + y, color);
-       OLEDrgb_SetPixel(oled, cx + x, cy - y, color);
-       OLEDrgb_SetPixel(oled, cx - x, cy - y, color);
-       OLEDrgb_SetPixel(oled, cx + y, cy + x, color);
-       OLEDrgb_SetPixel(oled, cx - y, cy + x, color);
-       OLEDrgb_SetPixel(oled, cx + y, cy - x, color);
-       OLEDrgb_SetPixel(oled, cx - y, cy - x, color);
+       OLEDrgb_DrawPixel(oled, cx + x, cy + y, color);
+       OLEDrgb_DrawPixel(oled, cx - x, cy + y, color);
+       OLEDrgb_DrawPixel(oled, cx + x, cy - y, color);
+       OLEDrgb_DrawPixel(oled, cx - x, cy - y, color);
+       OLEDrgb_DrawPixel(oled, cx + y, cy + x, color);
+       OLEDrgb_DrawPixel(oled, cx - y, cy + x, color);
+       OLEDrgb_DrawPixel(oled, cx + y, cy - x, color);
+       OLEDrgb_DrawPixel(oled, cx - y, cy - x, color);
 
        if (d < 0) {
            d += 2 * x + 3;
@@ -266,8 +266,8 @@ int main() {
     u16 blue = OLEDrgb_BuildRGB(0, 0, 255);
 
     // Place X at (0,0), O at (0,1)
-    DrawX(oled, 0, 0, red);
-    DrawO(oled, 0, 1, blue);
+    DrawX(&oledrgb, 0, 0, red);
+    DrawO(&oledrgb, 0, 1, blue);
 
     while(1) {
          // OledRun();

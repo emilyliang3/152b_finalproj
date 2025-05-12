@@ -177,6 +177,11 @@ void SysUartInit() {
 /* ------------------------------------------------------------ */
 /*               Auxiliary functions & Main                     */
 /* ------------------------------------------------------------ */
+void ResetGame() {
+   BoardInit();
+   board = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+}
+
 // Empty board
 void BoardInit() {
    // char ch;
@@ -298,16 +303,16 @@ void gameOver(PmodOLEDrgb* oled, int tile) {
    int col3 = (16 - 26) / 2;
 
    // Choose vertical rows
-   OLEDrgb_SetCursor(oled, 0, 0);
-   OLEDrgb_PutString(oled, "Game Over!\n");
-   // OLEDrgb_SetCursor(oled, col2, 3);
+   OLEDrgb_SetCursor(oled, 1, 0);
+   OLEDrgb_PutString(oled, "  Game Over!\n");
+   OLEDrgb_SetCursor(oled, 2, 0);
    OLEDrgb_PutString(oled, winnerLine);
-   // OLEDrgb_SetCursor(oled, col3, 5);
+   OLEDrgb_SetCursor(oled, 4, 0);
    OLEDrgb_PutString(oled, "Press any key to continue.");
 
    // Get key
    KYPDGetKey();
-   BoardInit();
+   ResetGame();
 }
 
  // Update board

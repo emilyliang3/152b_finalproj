@@ -89,9 +89,8 @@ void KYPDInitialize() {
 /* ------------------------------------------------------------ */
 /*                            BLE PMOD                          */
 /* ------------------------------------------------------------ */
-void BleInitialize()
+void BleInitializeSlave()
 {
-   SysUartInit();
    BT2_Begin (
       &myBT2,
       XPAR_PMODBT2_0_AXI_LITE_GPIO_BASEADDR,
@@ -99,28 +98,48 @@ void BleInitialize()
       BT2_UART_AXI_CLOCK_FREQ,
       115200
    );
+   BT2_EnterATMode(&myBT2);
+   BT2_SendCommand(&myBT2, "AT+ROLE=0");
+   u8 rxBuf[64]; 
+   int n;
+   
+   BT2_SendCommand(&myBT2, "AT+ADDR?");
+   n = BT2_RecvData(&myBT2, rxBuf, 64); 
+   
+   if (n > 0) {
+       rxBuf[n] = '\0'; 
+       OLEDrgb_Clear(&oled);
+       OLEDrgb_SetCursor(&oled, 0, 0);
+       OLEDrgb_PutString(&oled, (char*)rxBuf);
+   }
+   BT2_ExitATMode(&myBT2);
+}
+
+void BleInitializeMaster() {
+   BT2_Begin (
+      &myBT2,
+      XPAR_PMODBT2_0_AXI_LITE_GPIO_BASEADDR,
+      XPAR_PMODBT2_0_AXI_LITE_UART_BASEADDR,
+      BT2_UART_AXI_CLOCK_FREQ,
+      115200
+   );  
+   BT2_EnterATMode(&myBT2);
+   BT2_SendCommand(&myBT2, "AT+ROLE=1");
+   BT2_SendCommand(&myBT2, "AT+CMODE=0"); 
+   BT2_SendCommand(&myBT2, "AT+BIND=1234,56,789ABC"); 
+   BT2_ExitATMode(&myBT2);
 }
 
 void BleRun()
 {
-   u8 buf[1];
+   u8 buf[1] = 8;
    int n;
 
-   print("Initialized PmodBT2 Demo\n\r");
-   print("Received data will be echoed here, type to send data\r\n");
-
    while (1) {
-      // Echo all characters received from both BT2 and terminal to terminal
-      // Forward all characters received from terminal to BT2
-      n = SysUart_Recv(&myUart, buf, 1);
-      if (n != 0) {
-         SysUart_Send(&myUart, buf, 1);
-         BT2_SendData(&myBT2, buf, 1);
-      }
-
+      BT2_SendData(&myBT2, buf, 1);
       n = BT2_RecvData(&myBT2, buf, 1);
       if (n != 0) {
-         SysUart_Send(&myUart, buf, 1);
+         OLEDrgb_PutString(oled, "Received bluetooth");
       }
    }
 }
@@ -196,7 +215,7 @@ void BoardInit() {
    // }
 
    OLEDrgb_Clear(&oledrgb);
-  
+
    // Set color (white)
    u16 color = OLEDrgb_BuildRGB(255, 255, 255);
 
@@ -312,18 +331,21 @@ void gameOver(PmodOLEDrgb* oled, int tile) {
    OLEDrgb_SetCursor(oled, 0, 2);
    OLEDrgb_PutString(oled, winnerLine);
    OLEDrgb_SetCursor(oled, 0, 4);
-   OLEDrgb_PutString(oled, "Press any   non-numeric key to        continue.");
+   OLEDrgb_PutString(oled, "Press any   non-numeric key to      continue.");
 
    // Get key
    KYPDGetKey();
    ResetGame();
 }
 
- // Update board
- void updateBoard(int tile, int row, int col) {
+ // Update board, returns next tile
+ int updateBoard(int tile, int row, int col) {
    u16 red = OLEDrgb_BuildRGB(255, 0, 0);
    u16 blue = OLEDrgb_BuildRGB(0, 0, 255);
     // Display new board
+   if(board[3*row+col] != 0){
+	   return tile;
+   }
     switch (tile) {
       case X_TILE:
          DrawX(&oledrgb, row, col, red);
@@ -338,49 +360,58 @@ void gameOver(PmodOLEDrgb* oled, int tile) {
     int winner = checkWin(board, tile);
     if (winner >= 0)
       gameOver(&oledrgb, winner);
+    return turnChange(tile);
  }
 
-int main() { 
+ int turnChange(int currentTile){
+	 if(currentTile == 1){
+		 return 2;
+	 }
+	 return 1;
+ }
+
+int main() {
     // Initialize all peripherals
     EnableCaches(); // pulled it out of pmod initializations so only runs once
     KYPDInitialize();
     OledInitialize();
-    BleInitialize();
+    BleInitializeSlave();
     BoardInit();
+
+    int curTile = X_TILE;
 
     while(1) {
          // OledRun();
         // Get move
         char key = KYPDGetKey();
         int pos = key - '0';
-        int curTile = X_TILE;
         switch (pos) {
          case 1:
-            updateBoard(curTile, 0, 0);
+            curTile = updateBoard(curTile, 0, 0);
             break;
          case 2:
-            updateBoard(curTile, 0, 1);
+        	 curTile = updateBoard(curTile, 0, 1);
             break;
          case 3:
-            updateBoard(curTile, 0, 2);
+        	 curTile = updateBoard(curTile, 0, 2);
             break;
          case 4:
-            updateBoard(curTile, 1, 0);
+        	 curTile = updateBoard(curTile, 1, 0);
             break;
          case 5:
-            updateBoard(curTile, 1, 1);
+        	 curTile = updateBoard(curTile, 1, 1);
             break;
          case 6:
-            updateBoard(curTile, 1, 2);
+        	 curTile = updateBoard(curTile, 1, 2);
             break;
          case 7:
-            updateBoard(curTile, 2, 0);
+        	 curTile = updateBoard(curTile, 2, 0);
             break;
          case 8:
-            updateBoard(curTile, 2, 1);
+        	 curTile = updateBoard(curTile, 2, 1);
             break;
          case 9:
-            updateBoard(curTile, 2, 2);
+        	 curTile = updateBoard(curTile, 2, 2);
             break;
          default:
             break;

@@ -6,10 +6,10 @@
 #include "PmodKYPD.h"
 #include "sleep.h"
 #include "xil_cache.h"
-#include "PmodBT2.h"
+#include "PmodBLE.h"
 #include <stdio.h>
 #include "PmodOLEDrgb.h"
-#include "bitmap.h"
+#include "PmodBLE_Interface.h"
 
 // Required definitions for sending & receiving data over host board's UART port
 #ifdef __MICROBLAZE__
@@ -34,6 +34,8 @@ typedef XUartPs SysUart;
 #define DEFAULT_KEYTABLE "0FED789C456B123A"
 #define X_TILE 1
 #define O_TILE 2
+#define MY_TILE X_TILE
+// #define MY_TILE O_TILE
 PmodKYPD myKypd;
 PmodOLEDrgb oledrgb;
 PmodBT2 myBT2;
@@ -89,30 +91,16 @@ void KYPDInitialize() {
 /* ------------------------------------------------------------ */
 /*                            BLE PMOD                          */
 /* ------------------------------------------------------------ */
-void BleInitializeSlave()
+void BleInitialize()
 {
-   BT2_Begin (
-      &myBT2,
-      XPAR_PMODBT2_0_AXI_LITE_GPIO_BASEADDR,
-      XPAR_PMODBT2_0_AXI_LITE_UART_BASEADDR,
-      BT2_UART_AXI_CLOCK_FREQ,
-      115200
-   );
-   BT2_EnterATMode(&myBT2);
-   BT2_SendCommand(&myBT2, "AT+ROLE=0");
-   u8 rxBuf[64]; 
-   int n;
-   
-   BT2_SendCommand(&myBT2, "AT+ADDR?");
-   n = BT2_RecvData(&myBT2, rxBuf, 64); 
-   
-   if (n > 0) {
-       rxBuf[n] = '\0'; 
-       OLEDrgb_Clear(&oled);
-       OLEDrgb_SetCursor(&oled, 0, 0);
-       OLEDrgb_PutString(&oled, (char*)rxBuf);
+   PmodBLE_Initialize();
+   uint8 address[12] = {0};
+   int status = PmodBLE_GetDeviceAddress(&address);
+   if (status == PMODBLE_STATUS_SUCCESS) {
+      OLEDrgb_Clear(&oledrgb);
+      OLEDrgb_SetCursor(&oledrgb, 0, 0);
+      OLEDrgb_PutString(&oledrgb, (char*)address);  // Print response
    }
-   BT2_ExitATMode(&myBT2);
 }
 
 void BleInitializeMaster() {

@@ -103,21 +103,6 @@ void BleInitialize()
    }
 }
 
-void BleInitializeMaster() {
-   BT2_Begin (
-      &myBT2,
-      XPAR_PMODBT2_0_AXI_LITE_GPIO_BASEADDR,
-      XPAR_PMODBT2_0_AXI_LITE_UART_BASEADDR,
-      BT2_UART_AXI_CLOCK_FREQ,
-      115200
-   );  
-   BT2_EnterATMode(&myBT2);
-   BT2_SendCommand(&myBT2, "AT+ROLE=1");
-   BT2_SendCommand(&myBT2, "AT+CMODE=0"); 
-   BT2_SendCommand(&myBT2, "AT+BIND=1234,56,789ABC"); 
-   BT2_ExitATMode(&myBT2);
-}
-
 void BleRun()
 {
    u8 buf[1] = 8;
@@ -363,7 +348,7 @@ int main() {
     EnableCaches(); // pulled it out of pmod initializations so only runs once
     KYPDInitialize();
     OledInitialize();
-    BleInitializeSlave();
+    BleInitialize();
     BoardInit();
 
     int curTile = X_TILE;

@@ -32,15 +32,25 @@ typedef XUartPs SysUart;
 /*               Global Variables and Defines                   */
 /* ------------------------------------------------------------ */
 #define DEFAULT_KEYTABLE "0FED789C456B123A"
+#define BLE_ADDR_1 '801F12B5C279'
+#define BLE_ADDR_2 '801F12B6BB36'
 #define X_TILE 1
 #define O_TILE 2
-#define MY_TILE X_TILE
-// #define MY_TILE O_TILE
 PmodKYPD myKypd;
 PmodOLEDrgb oledrgb;
 PmodBT2 myBT2;
 SysUart myUart;
 int board[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+// Player X
+#define MY_TILE X_TILE
+uint8 myBleAddress[12] = BLE_ADDR_1;
+uint8 otherBleAddress[12] = BLE_ADDR_2;
+
+// Player O
+// #define MY_TILE O_TILE
+// uint8 myBleAddress[12] = BLE_ADDR_2;
+// uint8 otherBleAddress[12] = BLE_ADDR_1;
 
 u8 rgbUserFont[] = {
    0x00, 0x04, 0x02, 0x1F, 0x02, 0x04, 0x00, 0x00, // 0x00
@@ -94,13 +104,24 @@ void KYPDInitialize() {
 void BleInitialize()
 {
    PmodBLE_Initialize();
-   uint8 address[12] = {0};
-   int status = PmodBLE_GetDeviceAddress(&address);
-   if (status == PMODBLE_STATUS_SUCCESS) {
+   // To get BLE addresses:
+   // uint8 address[12] = {0};
+   // int status = PmodBLE_GetDeviceAddress(&address);
+   // if (status == PMODBLE_STATUS_SUCCESS) {
+   //    OLEDrgb_Clear(&oledrgb);
+   //    OLEDrgb_SetCursor(&oledrgb, 0, 0);
+   //    OLEDrgb_PutString(&oledrgb, (char*)address);  // Print response
+   // }
+   PmodBLE_ConnectTo(otherBleAddress);
+   while (!PmodBLE_IsConnected) {
       OLEDrgb_Clear(&oledrgb);
       OLEDrgb_SetCursor(&oledrgb, 0, 0);
-      OLEDrgb_PutString(&oledrgb, (char*)address);  // Print response
+      OLEDrgb_PutString(&oledrgb, "Connecting to other device..."); 
    }
+   OLEDrgb_Clear(&oledrgb);
+   OLEDrgb_SetCursor(&oledrgb, 0, 0);
+   OLEDrgb_PutString(&oledrgb, "Successfully connected!");
+   usleep(300000);
 }
 
 void BleRun()

@@ -32,13 +32,12 @@ typedef XUartPs SysUart;
 /*               Global Variables and Defines                   */
 /* ------------------------------------------------------------ */
 #define DEFAULT_KEYTABLE "0FED789C456B123A"
-#define BLE_ADDR_1 '801F12B5C279'
-#define BLE_ADDR_2 '801F12B6BB36'
+#define BLE_ADDR_1 "801F12B5C279"
+#define BLE_ADDR_2 "801F12B6BB36"
 #define X_TILE 1
 #define O_TILE 2
 PmodKYPD myKypd;
 PmodOLEDrgb oledrgb;
-PmodBT2 myBT2;
 SysUart myUart;
 int board[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 
@@ -126,16 +125,16 @@ void BleInitialize()
 
 void BleRun()
 {
-   u8 buf[1] = 8;
-   int n;
+   // u8 buf[1] = 8;
+   // int n;
 
-   while (1) {
-      BT2_SendData(&myBT2, buf, 1);
-      n = BT2_RecvData(&myBT2, buf, 1);
-      if (n != 0) {
-         OLEDrgb_PutString(oled, "Received bluetooth");
-      }
-   }
+   // while (1) {
+   //    BT2_SendData(&myBT2, buf, 1);
+   //    n = BT2_RecvData(&myBT2, buf, 1);
+   //    if (n != 0) {
+   //       OLEDrgb_PutString(oled, "Received bluetooth");
+   //    }
+   // }
 }
 
 /* ------------------------------------------------------------ */

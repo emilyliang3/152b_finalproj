@@ -43,8 +43,8 @@ int board[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 // Player X
 #define MY_TILE X_TILE
-uint8 myBleAddress[12] = BLE_ADDR_1;
-uint8 otherBleAddress[12] = BLE_ADDR_2;
+u8 myBleAddress[12] = BLE_ADDR_1;
+u8 otherBleAddress[12] = BLE_ADDR_2;
 
 // Player O
 // #define MY_TILE O_TILE
